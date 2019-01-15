@@ -24,3 +24,9 @@ class Item(models.Model):
 		decimal_places=2,
 	)
 
+	out_of_stock = models.BooleanField(
+		null=False,
+		blank=False,
+		default=False,
+	)
+
