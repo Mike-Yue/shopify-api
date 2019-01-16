@@ -76,6 +76,8 @@ class ShoppingCart():
 
 	def get_total_price(self):
 		total_price = 0.0
+		if(self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'] == ''):
+			return 0.0
 		item_ids = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'].split(', ')
 		for item_id in item_ids:
 			price = self.api_interface.get('items', id=item_id)['price']
@@ -83,6 +85,8 @@ class ShoppingCart():
 		return total_price
 
 	def purchase(self):
+		if(self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'] == ''):
+			raise Exception('No Items in cart to purchase')
 		item_ids = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'].split(', ')
 		for item_id in item_ids:
 			item = self.api_interface.get('items', id=item_id)
