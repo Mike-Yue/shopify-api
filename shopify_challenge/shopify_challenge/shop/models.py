@@ -1,4 +1,5 @@
 from django.db import models
+import json
 
 # Create your models here.
 
@@ -46,3 +47,21 @@ class Item(models.Model):
 		default=False,
 	)
 
+class ShoppingCart(models.Model):
+
+	user = models.CharField(
+		null=False,
+		blank=False,
+		max_length=100,
+	)
+
+	items = models.CharField(
+		null=True,
+		max_length=2000,
+	)
+
+	def set_items(self, x):
+		self.items = json.dumps(x)
+
+	def get_items(self):
+		return json.loads(self.items)

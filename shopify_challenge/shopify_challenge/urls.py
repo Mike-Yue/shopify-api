@@ -22,6 +22,7 @@ from shopify_challenge.shop import views
 
 router = routers.DefaultRouter()
 router.register(r'items', views.ItemViewSet)
+router.register(r'shopping_carts', views.ShoppingCartViewSet, base_name='shopping_carts')
 
 urlpatterns = [
 	url(r'^', include(router.urls)),

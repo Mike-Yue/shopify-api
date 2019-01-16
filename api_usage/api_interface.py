@@ -1,67 +1,73 @@
 import requests
+import json
 from urllib.request import HTTPError
 
 
 class ShopifyAPI():
 
-	def __init__(self):
-		self.username = 'mike'
-		self.password = 'ShopifyMike'
-		self.URL = 'http://127.0.0.1:8000/items/'
+	def __init__(self, username, password):
+		self.username = username
+		self.password = password
+		self.URL = 'http://127.0.0.1:8000/'
 
-	def list(self, **kwargs):
+	def create(self, table, **kwargs):
+		new_object = requests.post(self.URL + table + '/', data=kwargs, auth=(self.username, self.password)).json()
+		return new_object
+
+	def list(self, table, **kwargs):
 		'''
-		Inputs: Keywords such as category, name, id, out_of_stock
+		Inputs: Table name -> for example (items, shopping_carts), Keywords such as category, name, out_of_stock
 		Returns: A list of all all merchandise that satisfies the keywords
 		'''
 		try:
-			items = requests.get(self.URL, params=kwargs, auth=(self.username, self.password)).json()['results']
+			items = requests.get(self.URL + table + '/', params=kwargs, auth=(self.username, self.password)).json()['results']
 			return items
 		except KeyError:
 			return []
 
-	def get(self, name):
+	def get(self, table, **kwargs):
 		'''
 		Inputs: The name of a product (must be exact match)
 		Returns: A dict that contains the item's information
 		'''
-		item = requests.get(self.URL, params={"name": name}, auth=(self.username, self.password)).json()['results']
+		item = requests.get(self.URL + table + '/', params=kwargs, auth=(self.username, self.password)).json()['results']
 		if(len(item) == 0):
 			raise Exception('No item found with that name!')
+		elif(len(item) > 1):
+			raise Exception('More than one item found!')
 		return item[0]
 
-	def update(self, name, **kwargs):
+	def update(self, table, id, **kwargs):
 		'''
 		Inputs: Name of a product (must be exact match), keywords that are the fields to be updated
 		Returns: Nothing
 		'''
-		id = self.get_id_from_name(name)
-		r = requests.put(self.URL + str(id) + '/', data=kwargs, auth=(self.username, self.password))
-
-	def get_id_from_name(self, name):
-		'''
-		Helper Function for update()
-		Gets the ID of an item from the Name and returns it
-		'''
-		try:
-			id = self.get(name)['id']
-			return id
-		except:
-			raise Exception('Invalid Name')
+		r = requests.put(self.URL + table + '/'+ str(id) + '/', data=kwargs, auth=(self.username, self.password))
+		print(r.json())
 		
 
 class ShoppingCart():
 
-	def __init__(self):
-		self.api_interface = ShopifyAPI()
-		self.items = []
+	def __init__(self, username, password, cart_id=None):
+		self.api_interface = ShopifyAPI(username, password)
+		if(cart_id is None):
+			self.shopping_cart = self.api_interface.create('shopping_carts', user=username)
+		else:
+			self.shopping_cart = self.api_interface.get('shopping_carts', id=cart_id)
+		self.user = username
 
 	def add(self, item_name):
-		if(self.api_interface.get(item_name)['inventory_count'] == 0):
+		if(self.api_interface.get('items', name=item_name)['inventory_count'] == 0):
 			print('Cannot add to cart...Out of stock!')
 		else:
-			item = self.api_interface.get(item_name)
-			self.items.append(item)
+			item = self.api_interface.get('items', name=item_name)
+			current_items = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items']
+			if(current_items == None):
+				print(json.dumps(item), type(json.dumps(item)))
+				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=json.dumps(item))
+			else:
+				#TODO: concat dicts
+				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=json.dumps(str(current_items) + ', ' + str(item)))
 
 	def get_total_price(self):
 		total_price = 0
