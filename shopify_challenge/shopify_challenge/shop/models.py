@@ -11,6 +11,22 @@ class Item(models.Model):
 		max_length=100,
 	)
 
+	CPU = 'CPU'
+	RAM = 'RAM'
+	GPU = 'GPU'
+
+	category_choices = (
+		(CPU, 'Processor'),
+		(RAM, 'Memory'),
+		(GPU, 'Video Card'),
+	)
+
+	category = models.CharField(
+		max_length=40,
+		choices=category_choices,
+		null=True
+	)
+
 	inventory_count = models.IntegerField(
 		blank=False,
 		null=False,

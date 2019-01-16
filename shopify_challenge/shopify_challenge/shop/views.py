@@ -10,6 +10,9 @@ from .filters import ItemFilter
 
 class ItemViewSet(viewsets.ModelViewSet):
 
-	queryset = Item.objects.all()
-	serializer_class = ItemSerializer
-	filter_class = ItemFilter
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    filter_class = ItemFilter
+
+    def perform_update(self, serializer):
+        serializer.save()
