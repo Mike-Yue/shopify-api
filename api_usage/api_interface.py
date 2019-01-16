@@ -5,10 +5,10 @@ from urllib.request import HTTPError
 
 class ShopifyAPI():
 
-	def __init__(self, username, password):
+	def __init__(self, username, password, URL):
 		self.username = username
 		self.password = password
-		self.URL = 'http://127.0.0.1:8000/'
+		self.URL = URL
 
 	def create(self, table, **kwargs):
 		new_object = requests.post(self.URL + table + '/', data=kwargs, auth=(self.username, self.password)).json()
@@ -55,8 +55,8 @@ class ShopifyAPI():
 
 class ShoppingCart():
 
-	def __init__(self, username, password, cart_id=None):
-		self.api_interface = ShopifyAPI(username, password)
+	def __init__(self, username, password, URL, cart_id=None):
+		self.api_interface = ShopifyAPI(username, password, URL)
 		if(cart_id is None):
 			self.shopping_cart = self.api_interface.create('shopping_carts', user=username)
 		else:

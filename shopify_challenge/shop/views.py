@@ -11,7 +11,7 @@ from .filters import ItemFilter, ShoppingCartFilter
 
 class ItemViewSet(viewsets.ModelViewSet):
 
-    queryset = Item.objects.all()
+    queryset = Item.objects.all().order_by('id')
     serializer_class = ItemSerializer
     filter_class = ItemFilter
 
