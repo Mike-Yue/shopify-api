@@ -1,1 +1,1 @@
-web: python manage.py runserver https://mike-shopify-app.herokuapp.com/8000
+web: python manage.py runserver
