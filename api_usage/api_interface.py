@@ -27,7 +27,7 @@ class ShopifyAPI():
 
 	def get(self, table, **kwargs):
 		'''
-		Inputs: The name of a product (must be exact match)
+		Inputs: Table name -> for example (items, shopping_carts), Keywords such as category, name, out_of_stock
 		Returns: A dict that contains the item's information
 		'''
 		item = requests.get(self.URL + table + '/', params=kwargs, auth=(self.username, self.password)).json()['results']
@@ -39,12 +39,19 @@ class ShopifyAPI():
 
 	def update(self, table, id, **kwargs):
 		'''
-		Inputs: Name of a product (must be exact match), keywords that are the fields to be updated
-		Returns: Nothing
+		Inputs: Table name -> for example (items, shopping_carts), ID of object to update, Keywords such as category, name, out_of_stock
+		Returns: JSON of newly updated object
 		'''
 		r = requests.put(self.URL + table + '/'+ str(id) + '/', data=kwargs, auth=(self.username, self.password))
-		print(r.json())
+		return r.json()
 		
+	def delete(self, table, id):
+		'''
+		Table name -> for example (items, shopping_carts), ID of object to be deleted
+		Returns: Nothing
+		'''
+		r = requests.delete(self.URL + table + '/'+ str(id) + '/', auth=(self.username, self.password))
+
 
 class ShoppingCart():
 
@@ -62,28 +69,30 @@ class ShoppingCart():
 		else:
 			item = self.api_interface.get('items', name=item_name)
 			current_items = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items']
-			if(current_items == None):
-				print(json.dumps(item), type(json.dumps(item)))
-				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=json.dumps(item))
+			if(current_items == None or current_items == ''):
+				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=str(item['id']))
 			else:
-				#TODO: concat dicts
-				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=json.dumps(str(current_items) + ', ' + str(item)))
+				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=current_items + ', ' + str(item['id']))
 
 	def get_total_price(self):
-		total_price = 0
-		for item in self.items:
-			total_price+=float(item['price'])
+		total_price = 0.0
+		item_ids = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'].split(', ')
+		for item_id in item_ids:
+			price = self.api_interface.get('items', id=item_id)['price']
+			total_price+=float(price)
 		return total_price
 
 	def purchase(self):
-		for item in self.items:
+		item_ids = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'].split(', ')
+		for item_id in item_ids:
+			item = self.api_interface.get('items', id=item_id)
 			new_count = item['inventory_count'] - 1
-			print(new_count)
 			#Mark as out of stock if item count reaches 0
 			if(new_count == 0):
-				self.api_interface.update(item['name'], out_of_stock='True', inventory_count=new_count)
+				self.api_interface.update('items', item_id, out_of_stock='True', inventory_count=new_count)
 			else:
-				self.api_interface.update(item['name'], inventory_count=new_count)
+				self.api_interface.update('items', item_id, inventory_count=new_count)
+		self.api_interface.delete('shopping_carts', id=self.shopping_cart['id'])
 		print('Purchased')
 
 

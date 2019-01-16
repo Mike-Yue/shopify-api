@@ -4,8 +4,10 @@ if __name__=='__main__':
 	shopify_api = ShopifyAPI('mike', 'ShopifyMike')
 
 	print(shopify_api.list('shopping_carts'))
-	shopping_cart = ShoppingCart('mike', 'ShopifyMike', 11)
-	shopping_cart.add('AMD Ryzen 2600x')
+	shopping_cart = ShoppingCart('mike', 'ShopifyMike', 12)
+	print(shopping_cart.get_total_price())
+	shopping_cart.purchase()
+	#shopping_cart.add('Intel 8700k')
 
 	#shopify_api.update('Intel 9600k', inventory_count=0)
 
