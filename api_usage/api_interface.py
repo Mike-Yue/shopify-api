@@ -69,14 +69,23 @@ class ShoppingCart():
 		else:
 			item = self.api_interface.get('items', name=item_name)
 			current_items = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items']
-			if(current_items == None or current_items == ''):
+			if(current_items is None or current_items == ''):
 				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=str(item['id']))
 			else:
 				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=current_items + ', ' + str(item['id']))
 
+	def remove(self, item_name):
+		item = self.api_interface.get('items', name=item_name)
+		current_items = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items']
+		if(current_items is None or item['id'] not in current_items.split(', ')):
+			raise Exception('Cart is empty or item is not in cart!')
+		else:
+			current_items.split(', ').remove(item['id'])
+			self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=str(current_items))
+
 	def get_total_price(self):
 		total_price = 0.0
-		if(self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'] == ''):
+		if(self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'] is None):
 			return 0.0
 		item_ids = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'].split(', ')
 		for item_id in item_ids:
@@ -96,7 +105,7 @@ class ShoppingCart():
 				self.api_interface.update('items', item_id, out_of_stock='True', inventory_count=new_count)
 			else:
 				self.api_interface.update('items', item_id, inventory_count=new_count)
-		self.api_interface.delete('shopping_carts', id=self.shopping_cart['id'])
+		print(self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=None))
 		print('Purchased')
 
 

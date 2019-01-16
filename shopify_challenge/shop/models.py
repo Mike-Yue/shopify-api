@@ -56,9 +56,8 @@ class ShoppingCart(models.Model):
 	)
 
 	items = models.CharField(
-		null=False,
+		null=True,
 		max_length=2000,
-		default=''
 	)
 
 	def set_items(self, x):
