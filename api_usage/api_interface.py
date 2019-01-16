@@ -69,32 +69,42 @@ class ShoppingCart():
 		
 
 	def add(self, item_name):
+		'''
+		Inputs: Item name, must be exact match
+		Returns: JSON representation of the updated shopping cart state
+		'''
 		if(self.api_interface.get('items', name=item_name)['inventory_count'] == 0):
-			print('Cannot add to cart...Out of stock!')
+			raise Exception('Cannot add to cart...Out of stock!')
 		else:
 			item = self.api_interface.get('items', name=item_name)
 			current_items = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items']
 			if(current_items is None or current_items == ''):
-				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=str(item['id']))
+				return self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=str(item['id']))
 			else:
-				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=current_items + ', ' + str(item['id']))
+				return self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=current_items + ', ' + str(item['id']))
 
 	def remove(self, item_name):
+		'''
+		Inputs: Item name, must be exact match
+		Returns: JSON representation of the updated shopping cart state
+		'''
 		item = self.api_interface.get('items', name=item_name)
 		current_items = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items']
 		if(current_items is None or str(item['id']) not in current_items.split(', ')):
 			raise Exception('Cart is empty or item is not in cart!')
 		else:
 			updated_items = current_items.split(', ')
-			print(updated_items)
 			updated_items.remove(str(item['id']))
-			print(updated_items)
 			if(updated_items is None):
-				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items="")
+				return self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items="")
 			else:
-				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=", ".join(updated_items))
+				return self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=", ".join(updated_items))
 
 	def get_total_price(self):
+		'''
+		Inputs: None
+		Returns: Float number for the total price of all items
+		'''
 		total_price = 0.0
 		if(self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'] is None):
 			return 0.0
@@ -105,18 +115,26 @@ class ShoppingCart():
 		return total_price
 
 	def purchase(self):
+		'''
+		Inputs: None
+		Returns: None
+		However, it will reset the state of the shopping cart back to empty (None)
+		'''
 		if(self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'] == ''):
 			raise Exception('No Items in cart to purchase')
 		item_ids = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items'].split(', ')
 		for item_id in item_ids:
 			item = self.api_interface.get('items', id=item_id)
+			if(item['inventory_count'] == 0):
+				print('Skipping {}. Out of stock!'.format(item['name']))
+				continue
 			new_count = item['inventory_count'] - 1
 			#Mark as out of stock if item count reaches 0
 			if(new_count == 0):
 				self.api_interface.update('items', item_id, out_of_stock='True', inventory_count=new_count)
 			else:
 				self.api_interface.update('items', item_id, inventory_count=new_count)
-		print(self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=None))
+		self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items="")
 		print('Purchased')
 
 
