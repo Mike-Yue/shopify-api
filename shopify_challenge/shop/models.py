@@ -53,6 +53,7 @@ class ShoppingCart(models.Model):
 		null=False,
 		blank=False,
 		max_length=100,
+		unique=True,
 	)
 
 	items = models.CharField(

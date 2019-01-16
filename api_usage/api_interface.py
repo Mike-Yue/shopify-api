@@ -57,11 +57,16 @@ class ShoppingCart():
 
 	def __init__(self, username, password, URL, cart_id=None):
 		self.api_interface = ShopifyAPI(username, password, URL)
+		self.user = username
 		if(cart_id is None):
-			self.shopping_cart = self.api_interface.create('shopping_carts', user=username)
+			#Create Shopping Cart for user if they don't have one, else connect them to their current shopping cart
+			if(self.api_interface.list('shopping_carts', user=self.user) == []):
+				self.shopping_cart = self.api_interface.create('shopping_carts', user=username)
+			else:
+				self.shopping_cart = self.api_interface.get('shopping_carts', user=username)
 		else:
 			self.shopping_cart = self.api_interface.get('shopping_carts', id=cart_id)
-		self.user = username
+		
 
 	def add(self, item_name):
 		if(self.api_interface.get('items', name=item_name)['inventory_count'] == 0):
@@ -77,11 +82,17 @@ class ShoppingCart():
 	def remove(self, item_name):
 		item = self.api_interface.get('items', name=item_name)
 		current_items = self.api_interface.get('shopping_carts', id=self.shopping_cart['id'])['items']
-		if(current_items is None or item['id'] not in current_items.split(', ')):
+		if(current_items is None or str(item['id']) not in current_items.split(', ')):
 			raise Exception('Cart is empty or item is not in cart!')
 		else:
-			current_items.split(', ').remove(item['id'])
-			self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=str(current_items))
+			updated_items = current_items.split(', ')
+			print(updated_items)
+			updated_items.remove(str(item['id']))
+			print(updated_items)
+			if(updated_items is None):
+				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items="")
+			else:
+				self.api_interface.update('shopping_carts', self.shopping_cart['id'], user=self.user, items=", ".join(updated_items))
 
 	def get_total_price(self):
 		total_price = 0.0
