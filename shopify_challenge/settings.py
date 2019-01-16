@@ -26,7 +26,7 @@ SECRET_KEY = 'am6epw35@n+6l3r*u*ni#i%lnwoc3-(-0no)7@04j5fg+=z!*+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [‘0.0.0.0’, ‘localhost’, 'https://mike-shopify-app.herokuapp.com']
+ALLOWED_HOSTS = [‘0.0.0.0’, ‘localhost’, 'mike-shopify-app.herokuapp.com']
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
