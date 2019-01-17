@@ -11,6 +11,10 @@ class ShopifyAPI():
 		self.URL = URL
 
 	def create(self, table, **kwargs):
+		'''
+		Inputs: Table name -> either items or shopping_carts, Keywords such as category, name, out_of_stock
+		Returns: The created object
+		'''
 		new_object = requests.post(self.URL + table + '/', data=kwargs, auth=(self.username, self.password)).json()
 		return new_object
 
