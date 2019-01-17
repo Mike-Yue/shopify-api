@@ -153,7 +153,7 @@ print(shopify_api.get('items', name='Intel i5 9600k'))
 ## Using a Local Copy Instead
 If somehow Heroku goes down, or you want to get a local copy of the server instead, clone this entire repo, start up a virtual environment, and run `pip install -r requirements.txt` to install all the required modules. 
 
-Then, run `python manage.py runserver` to get a local version up and running http://127.0.0.1:8000/. 
+Then, run `python manage.py runserver` to get a local version up and running at http://127.0.0.1:8000/. 
 
 Finally, change the URL argument in `examples.py` to http://127.0.0.1:8000/ instead of http://mike-shopify-app.herokuapp.com/. Now you can query on your local copy of the server!
 
