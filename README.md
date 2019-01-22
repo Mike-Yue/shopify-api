@@ -10,7 +10,7 @@ Shopping Carts: Users can create a shopping cart to add, remove, and purchase it
 
 Permissions/Security: Users can only view their own shopping carts. There are two users currently: mike and dave. Their passwords are ShopifyMike and ShopifyDave respectively. Mike can view his own shopping cart, as can Dave, but they cannot view each others shopping carts. Furthermore, a user that is not logged in cannot view any shopping carts, and will only be able to make 'safe' requests to the API such as get().
 
-Front-end: Django Rest API Framework automatically provided a front-end, which you can visit at the link above
+Front-end: Django Rest API Framework automatically provided a front-end, which you can visit at the link above. To log in to the front-end, go to http://mike-shopify-app.herokuapp.com/admin and enter the credentials provided above
 
 ## Technology Used
 Web Framework: Django (Python 3.7)
